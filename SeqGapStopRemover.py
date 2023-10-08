@@ -1,9 +1,10 @@
+#!/usr/bin/env python3
 """
 SeqGapStopRemover.py: A script to remove gaps and stop codons from FASTA sequences.
 It can be run on a single file or on multiple files in a directory.
 
 Options:
-  --loop        Run the script on multiple .fasta files in a directory.
+  --loop        Run the script on multiple fasta files in a directory.
   --prefix      Use the original filename as a prefix for the output file (only with --loop).
   --output_dir  Specify the directory to save output files (only with --loop).
   --threads     Number of threads for parallel processing (only with --loop).
@@ -35,7 +36,7 @@ Examples:
     Multiple files with prefix:  python SeqGapStopRemover.py --loop --prefix input_directory/
     '''
     print(help_text)
-    print("For further help, say Hello to Aqib.")
+    print("For further help============>>>>>>>>>>>> say Hello to Aqib.")
 
 if '-h' in sys.argv or '--help' in sys.argv:
     show_help()
@@ -86,9 +87,9 @@ if __name__ == "__main__":
     parser.add_argument("--prefix", action="store_true", help="Use the original file name as a prefix for the output file (only works with --loop)")
     parser.add_argument("--output_dir", help="Specify the directory where output files will be saved (only works with --loop)")
     parser.add_argument("--threads", type=int, default=1, help="Number of threads to use for parallel processing (only works with --loop)")
-    
+
     args = parser.parse_args()
-    
+
     if args.output_dir and not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
 
@@ -106,6 +107,14 @@ if __name__ == "__main__":
             else:
                 output_file = os.path.join(args.input_path, fasta_file)
         remove_gaps_and_stop_codons_from_fasta(input_file, output_file)
-    
+
     if args.loop:
-        with ThreadPoolExecutor(max_workers
+        with ThreadPoolExecutor(max_workers=args.threads) as executor:
+            fasta_files = [f for f in os.listdir(args.input_path) if f.endswith('.fasta')]
+            executor.map(process_file, fasta_files)
+    else:
+        remove_gaps_and_stop_codons_from_fasta(args.input_path)
+
+
+    if args.loop or (not args.loop and sys.stdout.isatty()):
+        print("======>>>>>>>>>>>>Process completed sucessfully!: Wishes from Aqib.")
