@@ -25,7 +25,7 @@ def show_help():
     help_text = '''Usage: python SeqGapStopRemover.py [OPTIONS] <input_file_or_directory>
     
 Options:
-    --loop        Run the script on multiple .fasta files in the specified directory.
+    --loop        Run the script on multiple files in the specified directory.
     --prefix      Use the original file name as a prefix for the output file (only works with --loop).
     --output_dir  Specify the directory where output files will be saved (only works with --loop).
     --threads     Number of threads to use for parallel processing (only works with --loop).
@@ -36,7 +36,12 @@ Examples:
     Multiple files with prefix:  python SeqGapStopRemover.py --loop --prefix input_directory/
     '''
     print(help_text)
-    print("For further help============>>>>>>>>>>>> say Hello to Aqib.")
+    print("For further help============>>>>>>>>>>>> shoot a message Aqib.")
+
+def is_fasta(file_path):
+    with open(file_path, 'r') as file:
+        first_line = file.readline().strip()
+        return first_line.startswith(">")
 
 if '-h' in sys.argv or '--help' in sys.argv:
     show_help()
@@ -83,7 +88,7 @@ def remove_gaps_and_stop_codons_from_fasta(input_file, output_file=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("input_path", help="Input file or directory path")
-    parser.add_argument("--loop", action="store_true", help="Run the script on multiple .fasta files in the specified directory")
+    parser.add_argument("--loop", action="store_true", help="Run the script on multiple files in the specified directory")
     parser.add_argument("--prefix", action="store_true", help="Use the original file name as a prefix for the output file (only works with --loop)")
     parser.add_argument("--output_dir", help="Specify the directory where output files will be saved (only works with --loop)")
     parser.add_argument("--threads", type=int, default=1, help="Number of threads to use for parallel processing (only works with --loop)")
@@ -110,11 +115,11 @@ if __name__ == "__main__":
 
     if args.loop:
         with ThreadPoolExecutor(max_workers=args.threads) as executor:
-            fasta_files = [f for f in os.listdir(args.input_path) if f.endswith('.fasta')]
+            all_files = [f for f in os.listdir(args.input_path) if os.path.isfile(os.path.join(args.input_path, f))]
+            fasta_files = [f for f in all_files if is_fasta(os.path.join(args.input_path, f))]
             executor.map(process_file, fasta_files)
     else:
         remove_gaps_and_stop_codons_from_fasta(args.input_path)
 
-
     if args.loop or (not args.loop and sys.stdout.isatty()):
-        print("======>>>>>>>>>>>>Process completed sucessfully!: Wishes from Aqib.")
+        print("AJG4U======>>>>>>>>>>>>Process completed successfully!: Wishes from Aqib.")
